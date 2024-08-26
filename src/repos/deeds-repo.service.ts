@@ -76,7 +76,7 @@ export class DeedsRepo {
       `
         SELECT * 
         FROM friends 
-        WHERE userId1 = $1 AND userId2 = $2`,
+        WHERE userId1 = $1 AND userId2 = $2 or userId1 = $2 AND userId2 = $1`,
       [userId, friendId],
     );
 
