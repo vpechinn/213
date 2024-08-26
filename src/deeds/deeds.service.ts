@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { AuthRepo } from 'src/repos/auth-repo.service';
 import { Deed } from '../../models/Deed';
-import { DeedsRepo } from "../repos/deeds-repo.service";
+import { DeedsRepo } from '../repos/deeds-repo.service';
 
 @Injectable()
 export class DeedsService {
-  constructor(private readonly repo: DeedsRepo,private readonly authRepo: AuthRepo) {}
+  constructor(
+    private readonly repo: DeedsRepo,
+    private readonly authRepo: AuthRepo,
+  ) {}
 
   async createDeed({
     title,
@@ -19,7 +22,7 @@ export class DeedsService {
     await this.repo.createDeed({ title, description, userId });
   }
 
-  async getDeedByUserId(userId: string) : Promise<Deed[]> {
+  async getDeedByUserId(userId: string): Promise<Deed[]> {
     return await this.repo.listDeedsOfUser(userId);
   }
 
@@ -33,5 +36,9 @@ export class DeedsService {
 
   async getUserByAuthToken(token: any) {
     return await this.authRepo.getUserByToken(token);
+  }
+
+  async getFriendDeeds(userId: string, friendId: string) {
+    return await this.getFriendDeeds(userId, friendId);
   }
 }

@@ -1,7 +1,6 @@
 import { Injectable, Scope } from '@nestjs/common';
 import { Client } from 'pg';
 import { User } from '../../models/User';
-import { Deed } from '../../models/Deed';
 import { AuthToken } from '../../models/AuthToken';
 import { getPgClient } from "../dbClientFactory";
 

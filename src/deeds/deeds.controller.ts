@@ -48,10 +48,7 @@ export class DeedsController {
   }
 
   @Get()
-  async getDeeds(
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<void> {
+  async getDeeds(@Req() req: Request, @Res() res: Response): Promise<void> {
     let token = req.headers['authorization'];
     if (!token) throw new UnauthorizedException('No token provided');
 
@@ -64,7 +61,6 @@ export class DeedsController {
       res.status(404).send();
       throw error;
     }
-
   }
 
   @Put(':id')
@@ -101,5 +97,28 @@ export class DeedsController {
     await this.deeds.deleteDeed(params.id);
 
     res.status(200).send();
+  }
+
+  @Get('friend/:friendId')
+  async getFriendDeeds(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param() param: { friendId: string },
+  ): Promise<void> {
+    let token = req.headers['authorization'];
+    if (!token) throw new UnauthorizedException('No token provided');
+
+    token = token.replace('Bearer ', '');
+    const user = await this.deeds.getUserByAuthToken(token);
+    try {
+      const deeds = await this.deeds.getFriendDeeds(
+        user.userid,
+        param.friendId,
+      );
+      res.status(200).json(deeds).send();
+    } catch (error) {
+      res.status(404).send();
+      throw error;
+    }
   }
 }
