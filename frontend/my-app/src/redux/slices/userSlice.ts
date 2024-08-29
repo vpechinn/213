@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const APP_HOST = "localhost:8081"
+
 interface UserState {
   token: string | null;
   userId: string | null;
@@ -20,12 +22,11 @@ const initialState: UserState = {
   error: null,
 };
 
-// Sign-In action
 export const signIn = createAsyncThunk(
   'user/signIn',
   async ({ name, password }: SignInOrUpReq, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:8080/auth/sign-in', { name, password });
+      const response = await axios.post(`http://${APP_HOST}/auth/sign-in`, { name, password });
       return response.data; // Expect { token }
     } catch (err) {
       return rejectWithValue('Failed to sign in');
@@ -33,12 +34,12 @@ export const signIn = createAsyncThunk(
   }
 );
 
-// Sign-Up action
+
 export const signUp = createAsyncThunk(
   'user/signUp',
   async ({ name, password }: SignInOrUpReq, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:8080/auth/sign-up', { name, password });
+      const response = await axios.post(`http://${APP_HOST}/auth/sign-up`, { name, password });
       return response.data; // Expect { token }
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 409) {
@@ -49,7 +50,6 @@ export const signUp = createAsyncThunk(
   }
 );
 
-// Update User action
 export const updateUser = createAsyncThunk(
   'user/updateUser',
   async ({ name, password }: SignInOrUpReq, { getState, rejectWithValue }) => {
@@ -61,7 +61,7 @@ export const updateUser = createAsyncThunk(
     }
 
     try {
-      await axios.put('http://localhost:8080/auth/me', { name, password }, {
+      await axios.put(`http://${APP_HOST}/auth/me`, { name, password }, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
@@ -70,7 +70,6 @@ export const updateUser = createAsyncThunk(
   }
 );
 
-// Delete User action
 export const deleteUser = createAsyncThunk(
   'user/deleteUser',
   async (_, { getState, rejectWithValue }) => {
@@ -82,7 +81,7 @@ export const deleteUser = createAsyncThunk(
     }
 
     try {
-      await axios.delete('http://localhost:8080/auth/me', {
+      await axios.delete(`http://${APP_HOST}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
@@ -103,11 +102,20 @@ const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(signIn.pending, (state) => {
-        state.status = 'loading';
+        let lsToken = localStorage.getItem('auth:token');
+        if(lsToken)
+        {
+          state.status='idle'
+          state.token=lsToken
+        }
+        else
+          state.status = 'loading';
       })
       .addCase(signIn.fulfilled, (state, action: PayloadAction<{ token: string }>) => {
         state.token = action.payload.token;
         state.status = 'idle';
+        localStorage.setItem("auth:token",action.payload.token)
+
       })
       .addCase(signIn.rejected, (state, action: PayloadAction<any>) => {
         state.status = 'failed';

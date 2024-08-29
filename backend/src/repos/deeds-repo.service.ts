@@ -68,7 +68,7 @@ export class DeedsRepo {
       [userid, friendUserId],
     );
 
-    return Boolean(result.rows[0].count);
+    return Boolean(Number(result.rows[0].count));
   }
 
   async getFriendDeeds(userId: string, friendId: string): Promise<Deed[]> {
@@ -94,4 +94,9 @@ export class DeedsRepo {
 
     return result.rows;
   }
+
+  async addFriend(userId: string, friendId: string): Promise<void> {
+    await this.client.query(`INSERT INTO friends (userId1, userId2) VALUES ($1, $2)`, [userId, friendId]);
+  }
+
 }

@@ -100,7 +100,7 @@ export class DeedsController {
     res.status(200).send();
   }
 
-  @Get('friend/:friendId')
+  @Get(':friendId')
   async getFriendDeeds(
     @Req() req: Request,
     @Res() res: Response,
@@ -116,10 +116,35 @@ export class DeedsController {
         user.userid,
         param.friendId,
       );
-      res.status(200).json(deeds).send();
+      res.status(200).json(deeds);
     } catch (error) {
-      res.status(404).send();
+      res.status(404);
       throw error;
     }
   }
+
+  @Post(':friendId')
+  async addFriend(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('friendId') friendId: string,
+  ): Promise<void> {
+
+    let token = req.headers['authorization'];
+    if (!token) throw new UnauthorizedException('No token provided');
+
+    token = token.replace('Bearer ', '');
+    const user = await this.deeds.getUserByAuthToken(token);
+
+    if (user == null) throw new UnauthorizedException('Invalid token');
+
+    try {
+
+      await this.deeds.addFriend(user.userid, friendId);
+      res.status(201).send({ message: 'Friend added successfully' });
+    } catch (error) {
+      res.status(400).send({ message: 'Failed to add friend' });
+    }
+  }
+
 }

@@ -80,6 +80,14 @@ export class AuthRepo {
   }
 
   async deleteUser(userid: string) {
+    await this.client.query(`
+           DELETE FROM auth_tokens WHERE userId = $1;
+    `,[userid]
+    );
+    await this.client.query(`
+           DELETE FROM deeds WHERE userId = $1;
+    `,[userid]
+    );
     await this.client.query(
       `
             DELETE FROM users WHERE userid= $1`,

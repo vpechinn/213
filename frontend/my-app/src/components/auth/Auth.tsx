@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { signIn, signUp, updateUser, deleteUser } from '@/redux/slices/userSlice';
+import { signIn, signUp} from '@/redux/slices/userSlice';
 import { RootState } from '@/redux/store';
 import {useRouter} from 'next/navigation'
 
@@ -27,14 +27,6 @@ const UserComponent: React.FC = () => {
     dispatch(signUp({ name, password }));
     router.push('/deeds');
   };
-
-  // const handleUpdate = () => {
-  //   dispatch(updateUser({ name, password }));
-  // };
-  //
-  // const handleDelete = () => {
-  //   dispatch(deleteUser());
-  // };
 
   const onChangeInputName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputName(event.target.value);
@@ -67,7 +59,6 @@ const UserComponent: React.FC = () => {
         <button className={styles.button} onClick={handleSignIn}>Sign In</button>
         <button className={styles.button} onClick={handleSignUp}>Sign Up</button>
         {/*<button className={styles.button} onClick={handleUpdate}>Обновить профиль</button>*/}
-        {/*<button className={styles.button} onClick={handleDelete}>Удалить профиль</button>*/}
       </div>
 
       {status === 'loading' && <p>Loading...</p>}

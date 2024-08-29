@@ -96,6 +96,5 @@ export class AuthorizationController {
         res.status(200).send()
 
     }
-
     
 }

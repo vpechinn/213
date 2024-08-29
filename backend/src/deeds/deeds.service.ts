@@ -39,6 +39,19 @@ export class DeedsService {
   }
 
   async getFriendDeeds(userId: string, friendId: string) {
-    return await this.getFriendDeeds(userId, friendId);
+    return await this.repo.getFriendDeeds(userId, friendId);
+  }
+
+  async isFriend(userId: string, friendUserId: string): Promise<boolean> {
+    return await this.repo.isFriend(userId, friendUserId);
+  }
+
+  async addFriend(userId: string, friendId: string): Promise<void> {
+    const isAlreadyFriend = await this.isFriend(userId, friendId);
+    if (isAlreadyFriend) {
+      throw new Error('Users are already friends');
+    }
+
+    await this.repo.addFriend(userId, friendId);
   }
 }

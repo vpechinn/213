@@ -1,7 +1,14 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+const APP_HOST = "localhost:8081"
 
 interface Deed {
+  deedId: string;
+  title: string;
+  description: string;
+  userId: string;
+}
+interface FriendDeed {
   deedId: string;
   title: string;
   description: string;
@@ -12,15 +19,16 @@ interface DeedsState {
   deeds: Deed[];
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
+  friendDeeds: Deed[];
 }
 
 const initialState: DeedsState = {
   deeds: [],
   status: 'idle',
   error: null,
+  friendDeeds: []
 };
 
-// Create Deed action
 export const createDeed = createAsyncThunk(
   'deeds/createDeed',
   async ({ title, description }: { title: string; description: string }, { getState, rejectWithValue }) => {
@@ -32,7 +40,7 @@ export const createDeed = createAsyncThunk(
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/deeds', { title, description }, {
+      const response = await axios.post(`http://${APP_HOST}/deeds`, { title, description }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -42,7 +50,6 @@ export const createDeed = createAsyncThunk(
   }
 );
 
-// Fetch Deeds action
 export const fetchDeeds = createAsyncThunk(
   'deeds/fetchDeeds',
   async (_, { getState, rejectWithValue }) => {
@@ -54,7 +61,7 @@ export const fetchDeeds = createAsyncThunk(
     }
 
     try {
-      const response = await axios.get('http://localhost:3001/deeds', {
+      const response = await axios.get(`http://${APP_HOST}/deeds`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -64,7 +71,6 @@ export const fetchDeeds = createAsyncThunk(
   }
 );
 
-// Update Deed action
 export const updateDeed = createAsyncThunk(
   'deeds/updateDeed',
   async ({ deedId, title, description }: { deedId: string; title: string; description: string }, { getState, rejectWithValue }) => {
@@ -76,7 +82,7 @@ export const updateDeed = createAsyncThunk(
     }
 
     try {
-      const response = await axios.put(`http://localhost:3001/deeds/${deedId}`, { title, description }, {
+      const response = await axios.put(`http://${APP_HOST}/deeds/${deedId}`, { title, description }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -86,7 +92,6 @@ export const updateDeed = createAsyncThunk(
   }
 );
 
-// Delete Deed action
 export const deleteDeed = createAsyncThunk(
   'deeds/deleteDeed',
   async (deedId: string, { getState, rejectWithValue }) => {
@@ -98,12 +103,52 @@ export const deleteDeed = createAsyncThunk(
     }
 
     try {
-      await axios.delete(`http://localhost:3001/deeds/${deedId}`, {
+      await axios.delete(`http://${APP_HOST}/deeds/${deedId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return deedId;
     } catch (err) {
       return rejectWithValue('Failed to delete deed');
+    }
+  }
+);
+
+export const fetchFriendDeeds = createAsyncThunk(
+  'deeds/fetchFriendDeeds',
+  async ({ userId, friendIdDeed }: { userId: string, friendIdDeed: string }, { getState,rejectWithValue }) => {
+    const state = getState() as any;
+    const { token } = state.user;
+    try {
+
+      const response = await axios.get(`http://${APP_HOST}/deeds/${friendIdDeed}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue("failed to add friend");
+    }
+  }
+);
+
+export const addFriend = createAsyncThunk(
+  'deeds/addFriend',
+  async ({ userId, friendId }: { userId: string; friendId: string }, { getState,rejectWithValue }) => {
+    const state = getState() as any;
+    const { token } = state.user;
+    try {
+
+      const response = await axios.post(`http://${APP_HOST}/deeds/${friendId}`,
+        { userId, friendId },{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue("failed to add friend");
     }
   }
 );
@@ -158,6 +203,27 @@ const deedsSlice = createSlice({
         state.status = 'idle';
       })
       .addCase(deleteDeed.rejected, (state, action: PayloadAction<any>) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(fetchFriendDeeds.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchFriendDeeds.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.friendDeeds = action.payload;
+      })
+      .addCase(fetchFriendDeeds.rejected, (state, action: PayloadAction<any>) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(addFriend.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addFriend.fulfilled, (state) => {
+        state.status = 'idle';
+      })
+      .addCase(addFriend.rejected, (state, action: PayloadAction<any>) => {
         state.status = 'failed';
         state.error = action.payload;
       });
