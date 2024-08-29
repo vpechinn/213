@@ -2,8 +2,8 @@ import { Client } from "pg";
 
 export const getPgClient=()=> new Client({
     host: 'localhost',
-    port: 5439,
-    user: 'pothos',
-    password: '3c3Pv3jtIpNGzg5UJTa1mzbqgwduGmSh2hMJlNdnRE',
+    port: 5432,
+    user: 'postgres',
+    password: '2012',
     database: 'postgres',
   });

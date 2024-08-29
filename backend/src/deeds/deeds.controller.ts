@@ -42,6 +42,7 @@ export class DeedsController {
       });
     } catch (error) {
       res.status(409).send();
+      console.log(error)
       throw error;
     }
     res.status(201).send();
