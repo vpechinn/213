@@ -16,7 +16,7 @@ interface SignInOrUpReq {
 }
 
 const initialState: UserState = {
-  token: null,
+  token: typeof window !== "undefined" ? localStorage.getItem('auth:token') : null,
   userId: null,
   status: 'idle',
   error: null,

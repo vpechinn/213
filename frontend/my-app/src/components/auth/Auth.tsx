@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signIn, signUp} from '@/redux/slices/userSlice';
-import { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 import {useRouter} from 'next/navigation'
 
 import styles from './index.module.scss'
 import { setName, setPassword } from '@/redux/slices/accountSlice';
 
 const UserComponent: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [InputName, setInputName] = useState('');
   const [InputPassword, setInputPassword] = useState('');
   const {name, password} = useSelector((state: RootState) => state.accountUser);

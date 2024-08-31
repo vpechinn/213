@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createDeed, fetchDeeds, updateDeed, deleteDeed, addFriend, fetchFriendDeeds } from '@/redux/slices/deedsSlice';
-import { RootState } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 
 import styles from './index.module.scss'
 import { deleteUser, updateUser } from '@/redux/slices/userSlice';
 import {setPassword} from '@/redux/slices/accountSlice';
 
 const DeedsComponent: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [inputPasword, setInputPasword] = useState('');
+  const [inputPassword, setInputPassword] = useState('');
   const [changePassword, setChangePassword] = useState(false);
 
   const [editDeedId, setEditDeedId] = useState<string | null>(null);
@@ -24,7 +24,7 @@ const DeedsComponent: React.FC = () => {
 
   const { deeds, status, error, friendDeeds } = useSelector((state: RootState) => state.deeds);
   const {name, password} = useSelector((state:RootState) => state.accountUser);
-  const userId = useSelector((state: RootState) => state.user.userId)
+  const userId : string | null = useSelector((state: RootState) => state.user.userId)
 
 
   useEffect(() => {
@@ -32,11 +32,14 @@ const DeedsComponent: React.FC = () => {
   }, [dispatch]);
 
   const handleAddFriend = () => {
+      // @ts-ignore
     dispatch(addFriend({ userId, friendId }));
   };
 
   const handleFetchFriendsDeeds = () => {
+      // @ts-ignore
     dispatch(fetchFriendDeeds({userId, friendIdDeed}));
+
   }
 
   const handleCreateDeed = () => {
@@ -53,17 +56,16 @@ const DeedsComponent: React.FC = () => {
       });
   };
 
-
-  // const handleUpdateDeed = (deedId: string) => {
-  //   dispatch(updateDeed({ deedId, title, description }));
-  // };
-
-  const handleUpdateDeed = (deedId: string) => {
-    dispatch(updateDeed({ deedId, title, description: inputDescription }))
-      .then(() => {
-        setEditDeedId(null);
-        dispatch(fetchDeeds());
-      });
+  const handleUpdateDeed = (deedid: string) => {
+   if (inputDescription) {
+     dispatch(updateDeed({ deedid, title, description: inputDescription }))
+       .then(() => {
+         setEditDeedId(null);
+         dispatch(fetchDeeds());
+       });
+   } else {
+     console.log("assignable null yo string")
+   }
   };
 
 
@@ -77,8 +79,8 @@ const DeedsComponent: React.FC = () => {
   };
 
   const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setPassword(inputPasword))
-    setInputPasword(event.target.value)
+    dispatch(setPassword(inputPassword))
+    setInputPassword(event.target.value)
   }
 
 
@@ -93,7 +95,7 @@ const DeedsComponent: React.FC = () => {
             <input
               type="text"
               className={styles.input}
-              value={inputPasword}
+              value={inputPassword}
               onChange={onChangeInput}
               placeholder="password"
             />
@@ -132,7 +134,7 @@ const DeedsComponent: React.FC = () => {
                 <>
                   <input
                     type="text"
-                    value={inputDescription}
+                    value={inputDescription || ''}
                     onChange={(e) => setInputDescription(e.target.value)}
                     placeholder="Description"
                   />
@@ -163,7 +165,7 @@ const DeedsComponent: React.FC = () => {
             <input
               className={styles.input}
               type="text"
-              value={friendIdDeed}
+              value={friendIdDeed || ''}
               onChange={(e) => setFriendIdDeed(e.target.value)}
               placeholder="Friend ID"
             />

@@ -3,7 +3,7 @@ import axios from 'axios';
 const APP_HOST = "localhost:8081"
 
 interface Deed {
-  deedId: string;
+  deedid: string;
   title: string;
   description: string;
   userId: string;
@@ -73,7 +73,7 @@ export const fetchDeeds = createAsyncThunk(
 
 export const updateDeed = createAsyncThunk(
   'deeds/updateDeed',
-  async ({ deedId, title, description }: { deedId: string; title: string; description: string }, { getState, rejectWithValue }) => {
+  async ({ deedid, title, description }: { deedid: string; title: string; description: string }, { getState, rejectWithValue }) => {
     const state = getState() as any;
     const { token } = state.user;
 
@@ -82,7 +82,7 @@ export const updateDeed = createAsyncThunk(
     }
 
     try {
-      const response = await axios.put(`http://${APP_HOST}/deeds/${deedId}`, { title, description }, {
+      const response = await axios.put(`http://${APP_HOST}/deeds/${deedid}`, { title, description }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -94,7 +94,7 @@ export const updateDeed = createAsyncThunk(
 
 export const deleteDeed = createAsyncThunk(
   'deeds/deleteDeed',
-  async (deedId: string, { getState, rejectWithValue }) => {
+  async (deedid: string, { getState, rejectWithValue }) => {
     const state = getState() as any;
     const { token } = state.user;
 
@@ -103,10 +103,10 @@ export const deleteDeed = createAsyncThunk(
     }
 
     try {
-      await axios.delete(`http://${APP_HOST}/deeds/${deedId}`, {
+      await axios.delete(`http://${APP_HOST}/deeds/${deedid}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return deedId;
+      return deedid;
     } catch (err) {
       return rejectWithValue('Failed to delete deed');
     }
@@ -185,7 +185,7 @@ const deedsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(updateDeed.fulfilled, (state, action: PayloadAction<Deed>) => {
-        const index = state.deeds.findIndex(deed => deed.deedId === action.payload.deedId);
+        const index = state.deeds.findIndex(deed => deed.deedid === action.payload.deedid);
         if (index >= 0) {
           state.deeds[index] = action.payload;
         }
@@ -199,7 +199,7 @@ const deedsSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(deleteDeed.fulfilled, (state, action: PayloadAction<string>) => {
-        state.deeds = state.deeds.filter(deed => deed.deedId !== action.payload);
+        state.deeds = state.deeds.filter(deed => deed.deedid !== action.payload);
         state.status = 'idle';
       })
       .addCase(deleteDeed.rejected, (state, action: PayloadAction<any>) => {
